@@ -4,7 +4,7 @@
   "description": "A Codex-first multi-agent council that turns independent model debate into an inspectable Co-Result.",
   "type": "module",
   "bin": {
-    "co-agent": "./bin/co-agent.mjs"
+    "co-agent": "bin/co-agent.mjs"
   },
   "files": [
     "bin",
