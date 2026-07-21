@@ -59,6 +59,16 @@ npm install -g co-agent-council
 co-agent setup codex
 ```
 
+Or ask Codex to install it for you:
+
+```text
+Open https://github.com/yuunnn/co-agent, inspect the repository, install Co-Agent,
+run co-agent setup codex, verify the installation with co-agent doctor, and tell me
+when I need to restart Codex.
+```
+
+Codex can perform this installation when you explicitly ask it to. It should inspect the repository first, use the published npm package, and report every change it makes to your local Codex configuration.
+
 Restart Codex and open a new task so the Skill and MCP server are discovered. Then say:
 
 ```text
