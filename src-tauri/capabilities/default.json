@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "No privileged frontend commands are required; the UI talks only to the local authenticated daemon.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

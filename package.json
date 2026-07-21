@@ -1,0 +1,82 @@
+{
+  "name": "co-agent-council",
+  "version": "0.1.0",
+  "description": "A Codex-first multi-agent council that turns independent model debate into an inspectable Co-Result.",
+  "type": "module",
+  "bin": {
+    "co-agent": "./bin/co-agent.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "skill",
+    "src",
+    "src-tauri/target/release/bundle/macos/Co-Agent.app"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host 127.0.0.1",
+    "open": "node ./bin/co-agent.mjs open",
+    "daemon": "node ./bin/co-agent.mjs daemon",
+    "doctor": "node ./bin/co-agent.mjs doctor",
+    "setup:codex": "node ./bin/co-agent.mjs setup codex",
+    "tauri": "tauri",
+    "tauri:build": "node ./script/build-tauri.mjs",
+    "clean": "node ./script/clean.mjs",
+    "check:install-size": "node ./script/check-install-size.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "validate:skill": "python3 ${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py ./skill/co-agent"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "yuunnn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuunnn/co-agent.git"
+  },
+  "homepage": "https://github.com/yuunnn/co-agent#readme",
+  "bugs": {
+    "url": "https://github.com/yuunnn/co-agent/issues"
+  },
+  "keywords": [
+    "codex",
+    "multi-agent",
+    "ai-agents",
+    "agent-council",
+    "llm-council",
+    "mcp",
+    "acp",
+    "claude-code",
+    "cursor-agent",
+    "opencode",
+    "tauri",
+    "developer-tools"
+  ],
+  "dependencies": {
+    "@agentclientprotocol/sdk": "1.2.1",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "ws": "8.21.1",
+    "zod": "4.4.3"
+  },
+  "peerDependencies": {
+    "@openai/codex-sdk": ">=0.144.6"
+  },
+  "peerDependenciesMeta": {
+    "@openai/codex-sdk": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "lucide-react": "1.25.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.3",
+    "typescript": "7.0.2",
+    "vite": "8.1.5"
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Co-Agent"
+  short_description: "Run a council with your enabled providers"
+  default_prompt: "Use $co-agent to bind this task and coordinate the providers I enabled in Co-Agent Settings."

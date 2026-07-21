@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a focused improvement to council behavior or product UX
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Describe the concrete council workflow that is currently difficult or impossible.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain what should change without assuming a specific implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Product boundaries
+      description: Note any impact on independence, evidence access, quorum, privacy, or package size.

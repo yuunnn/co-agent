@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a reproducible Co-Agent defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Remove tokens, private gateway URLs, local evidence, and sensitive paths before submitting.
+  - type: input
+    id: version
+    attributes:
+      label: Co-Agent version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: macOS 15, Apple Silicon, Node 20
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include the smallest reproducible sequence and the relevant command.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
