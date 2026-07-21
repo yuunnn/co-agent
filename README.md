@@ -6,9 +6,11 @@
 
 <p align="center"><strong>You’ve spawned countless Subagents, but an assembly line is not a council.</strong></p>
 
+<p align="center"><strong>Stop copying the same question between AI agents.</strong></p>
+
 <p align="center">
-  A local, Codex-first council for independent model judgment, structured challenge,<br />
-  visible disagreement, and one inspectable <strong>Co-Result</strong>.
+  Keep working in Codex. Co-Agent asks your other configured agents for independent opinions,<br />
+  lets them challenge the strongest disagreement, and brings one decision back.
 </p>
 
 <p align="center">
@@ -20,35 +22,40 @@
 </p>
 
 <p align="center">
-  <code>Codex task</code> → <code>blind independent round</code> → <code>challenge</code> → <code>agreements + disputes</code> → <code>Co-Result</code>
+  <code>one Codex task</code> → <code>ask the other agents</code> → <code>compare disagreements</code> → <code>one decision</code>
 </p>
 
 ![A real Co-Agent council showing five eligible seats, a verified quorum, deliberation, agreements, and a Co-Result](./assets/co-agent-council-wide.png)
 
 <p align="center"><sub>Actual Co-Agent UI with a public-safe demonstration council. No mock product surface.</sub></p>
 
-## Why a council?
+## The problem
 
-Parallel answers are useful, but parallelism alone does not produce deliberation. Co-Agent separates independent judgment from cross-examination, tracks which seats actually satisfied the evidence contract, and keeps unresolved dissent visible when Codex synthesizes the result.
+Most people who use several AI agents still do most of their work in one of them. The trouble starts when a question matters. You copy it into Claude Code, OpenCode, Cursor, or a browser model, wait for each answer, paste the answers back into your main task, and ask the main agent to compare them. If the question depends on code or documents, you also have to rebuild the context for every agent.
 
-| Assembly line | Co-Agent council |
+The extra opinions are useful. Acting as the message bus is not.
+
+Co-Agent removes that manual relay. Your current Codex task stays in charge. It sends the same question and evidence to the terminal agents and API models you have configured, collects their independent judgments, asks them to challenge the strongest disagreement, and brings the result back to the task where you were already working.
+
+| Without Co-Agent | With Co-Agent |
 | --- | --- |
-| Multiple agents see the same framing and produce parallel drafts | Seats answer independently before seeing Codex or peers |
-| A process that returned is treated as a valid vote | Availability, evidence compliance, and consensus eligibility are separate |
-| Majority becomes “truth” | Quorum is necessary, but evidence and surviving objections decide the Co-Result |
-| Disagreement disappears into a final summary | Agreements and unresolved disputes remain first-class output |
-| More workers means more hidden state | One Codex host moderates user-configured external seats in a visible local app |
+| Open several terminals and browser tabs, then paste the same question into each one | Ask once from the current Codex task |
+| Rebuild the relevant context for every agent | Give every agent the same prompt, workspace, or sealed files |
+| Receive several isolated answers that never address one another | Start with independent judgments, then challenge the strongest disagreement |
+| Paste everything back and synthesize it by hand | Let Codex return one conclusion while keeping agreements and unresolved disputes visible |
+
+Use Co-Agent for the questions you would otherwise copy to another model: a difficult code review, an architecture choice, a research judgment, a product decision, or an operational plan.
 
 ## What it does
 
-- **Codex remains the entry point.** Co-Agent does not create a competing task inbox. The current Codex task binds and hosts the council; the desktop app is its second screen.
-- **One Codex seat, not a swarm of Codex clones.** Enabled terminal Agents and API models become the other independent seats.
-- **Blind first round.** External seats receive the task and evidence without Codex's position or peer outputs.
-- **Challenge round.** Seats confront the strongest competing claims instead of producing five isolated drafts.
-- **Evidence contracts.** Use a prompt, a read-only workspace, or a sealed packet of named files. Sealed sources are copied, hashed, made read-only, and converted once when a PDF needs text extraction.
-- **Honest quorum.** Failed, advisory, and evidence-noncompliant seats are visible but cannot silently count toward consensus.
-- **A general-purpose Co-Result.** The final surface works for code, architecture, research, product, and operational decisions.
-- **Local-first state.** Sessions, events, provider metadata, and evidence packets stay under `~/.co-agent/`. API tokens are isolated in a permission-restricted file and never returned by the Settings API.
+- **One main agent.** The current Codex task remains the host and moderator; Co-Agent is a second screen, not another task inbox.
+- **The agents you already use.** Enabled terminal agents and API models join as independent seats. Co-Agent does not create extra Codex clones.
+- **Independent answers first.** External seats judge the task before seeing Codex's position or one another's answers.
+- **A real challenge round.** The agents respond to the strongest competing claims instead of leaving you with five parallel drafts.
+- **The same evidence for everyone.** Give the council a prompt, a read-only workspace, or a sealed packet of named files.
+- **No fake consensus.** Failed, advisory, and evidence-noncompliant seats remain visible but cannot silently count as valid votes.
+- **One result brought back.** Codex synthesizes the outcome, supporting evidence, unresolved disputes, and next actions into a Co-Result.
+- **Local by default.** Sessions, events, provider metadata, and evidence packets stay under `~/.co-agent/`. API tokens are isolated in a permission-restricted file and never returned by the Settings API.
 
 ## Quick start
 
@@ -72,7 +79,8 @@ Codex can perform this installation when you explicitly ask it to. It should ins
 Restart Codex and open a new task so the Skill and MCP server are discovered. Then say:
 
 ```text
-Open Co-Agent, bind this task, and create a council.
+Open Co-Agent for this task. Ask my other agents to judge it independently,
+challenge the strongest disagreement, and bring the final recommendation back here.
 ```
 
 To configure seats first:
