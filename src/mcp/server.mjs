@@ -1,10 +1,10 @@
-import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { prepareEvidencePacket } from "../core/evidence.mjs";
+import { launchDesktopApp } from "../core/desktop.mjs";
 import { apiRequest, ensureDaemon } from "../core/runtime.mjs";
 import { COUNCIL_PARTICIPANTS, configuredCouncilParticipants, runExternalCouncil } from "../providers/council.mjs";
 
@@ -191,17 +191,14 @@ async function executeCouncilRound({ request, session, sessionId, jobId, codexPo
 }
 
 export async function runMcpServer() {
-  const server = new McpServer({ name: "co-agent", version: "0.1.0" });
+  const server = new McpServer({ name: "co-agent", version: "0.1.1" });
 
   server.registerTool("co_agent_open", {
     description: "Open the standalone Co-Agent desktop council, optionally focused on a session.",
     inputSchema: { sessionId: z.string().optional() },
   }, async ({ sessionId }) => {
-    const args = [cliPath, "open"];
-    if (sessionId) args.push("--session", sessionId);
-    const child = spawn(process.execPath, args, { detached: true, stdio: "ignore" });
-    child.unref();
-    return output({ opened: true, sessionId: sessionId || null }, "Opened the Co-Agent desktop app.");
+    const launch = await launchDesktopApp({ sessionId: sessionId || null, cliPath });
+    return output(launch, "Opened the Co-Agent desktop app and verified that its window is ready.");
   });
 
   server.registerTool("co_agent_bind_current", {
@@ -263,8 +260,11 @@ export async function runMcpServer() {
       }));
     }
     if (openApp) {
-      const child = spawn(process.execPath, [cliPath, "open", "--session", session.id], { detached: true, stdio: "ignore" });
-      child.unref();
+      try {
+        await launchDesktopApp({ sessionId: session.id, cliPath });
+      } catch (error) {
+        throw new Error(`Bound Co-Agent session ${session.id}, but its desktop window failed to open: ${error.message || error}`);
+      }
     }
     return output({ sessionId: session.id, controller: session.controller, evidence: session.evidence, opened: openApp }, `Bound this Codex task to Co-Agent session ${session.id}.`);
   });

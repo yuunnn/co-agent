@@ -1,6 +1,6 @@
 {
   "name": "co-agent-council",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Codex-first multi-agent council that turns independent model debate into an inspectable Co-Result.",
   "type": "module",
   "bin": {

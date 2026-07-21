@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
 import path from "node:path";
-import { spawn, spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { startDaemon } from "../src/server/daemon.mjs";
+import { launchDesktopApp } from "../src/core/desktop.mjs";
 import { ensureDaemon, readRuntime, runtimeIsHealthy } from "../src/core/runtime.mjs";
 import { bundledSkillRoot, packageRoot } from "../src/core/paths.mjs";
 
@@ -11,30 +11,10 @@ const command = process.argv[2] || "open";
 const argumentsAfterCommand = process.argv.slice(3);
 
 async function openApp() {
-  if (process.platform !== "darwin" && !process.env.CO_AGENT_APP_BIN) {
-    throw new Error("The prebuilt desktop app currently supports macOS. The daemon and MCP server remain cross-platform; set CO_AGENT_APP_BIN to a locally built desktop binary to override.");
-  }
-  if (process.platform === "darwin" && process.arch !== "arm64" && !process.env.CO_AGENT_APP_BIN) {
-    throw new Error("The npm package currently ships an Apple Silicon desktop app. Set CO_AGENT_APP_BIN to a locally built binary on Intel macOS.");
-  }
-  const runtime = await ensureDaemon({ cliPath: fileURLToPath(import.meta.url) });
   const sessionIndex = argumentsAfterCommand.indexOf("--session");
   const sessionId = sessionIndex >= 0 ? argumentsAfterCommand[sessionIndex + 1] : null;
-  const candidates = [
-    process.env.CO_AGENT_APP_BIN,
-    path.join(packageRoot, "src-tauri", "target", "aarch64-apple-darwin", "release", "bundle", "macos", "Co-Agent.app", "Contents", "MacOS", "co-agent-app"),
-    path.join(packageRoot, "src-tauri", "target", "release", "bundle", "macos", "Co-Agent.app", "Contents", "MacOS", "co-agent-app"),
-    path.join(packageRoot, "src-tauri", "target", "release", "co-agent-app"),
-  ].filter(Boolean);
-  let appBinary = null;
-  for (const candidate of candidates) {
-    try { await fs.access(candidate); appBinary = candidate; break; } catch {}
-  }
-  if (!appBinary) throw new Error("Co-Agent Tauri app is not built. Run npm run tauri:build first.");
-  const appArgs = sessionId ? ["--session", sessionId] : [];
-  const child = spawn(appBinary, appArgs, { detached: true, stdio: "ignore", env: process.env });
-  child.unref();
-  console.log(`Co-Agent Tauri app opened at http://127.0.0.1:${runtime.port}`);
+  const result = await launchDesktopApp({ sessionId });
+  console.log(`Co-Agent desktop window is ready at ${result.url}`);
 }
 
 async function setupCodex() {

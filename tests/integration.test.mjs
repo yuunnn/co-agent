@@ -36,6 +36,21 @@ test("daemon, MCP, and ACP form one working local control plane", async (t) => {
 
   const runtime = await waitForRuntime(path.join(temporaryRoot, "runtime.json"));
   assert.equal((await fs.stat(path.join(temporaryRoot, "runtime.json"))).mode & 0o777, 0o600);
+  const mockDesktop = path.join(temporaryRoot, "mock-desktop.mjs");
+  await fs.writeFile(mockDesktop, `#!${process.execPath}
+import fs from "node:fs/promises";
+import path from "node:path";
+const launchIndex = process.argv.indexOf("--launch-id");
+const launchId = process.argv[launchIndex + 1];
+const runtime = JSON.parse(await fs.readFile(path.join(process.env.CO_AGENT_HOME, "runtime.json"), "utf8"));
+await fetch(\`http://127.0.0.1:\${runtime.port}/api/desktop/launches/\${launchId}/ready\`, {
+  method: "POST",
+  headers: { authorization: \`Bearer \${runtime.token}\`, "content-type": "application/json" },
+  body: "{}",
+});
+`);
+  await fs.chmod(mockDesktop, 0o700);
+  environment.CO_AGENT_APP_BIN = mockDesktop;
   const request = async (pathname, options = {}) => {
     const response = await fetch(`http://127.0.0.1:${runtime.port}${pathname}`, {
       ...options,
@@ -118,7 +133,7 @@ fi
     env: environment,
     stderr: "pipe",
   });
-  const client = new Client({ name: "co-agent-test", version: "0.1.0" });
+  const client = new Client({ name: "co-agent-test", version: "0.1.1" });
   await client.connect(transport);
   t.after(() => client.close());
   const tools = await client.listTools();
@@ -132,9 +147,10 @@ fi
   ]);
   const bound = await client.callTool({
     name: "co_agent_bind_current",
-    arguments: { title: "Integration council", objective: "Verify protocol wiring", hostThreadId: "test-thread", evidenceMode: "prompt", openApp: false },
+    arguments: { title: "Integration council", objective: "Verify protocol wiring", hostThreadId: "test-thread", evidenceMode: "prompt", openApp: true },
   });
   assert.equal(bound.structuredContent.controller.threadId, "test-thread");
+  assert.equal(bound.structuredContent.opened, true, "binding only succeeds after the desktop UI reports ready");
   const sessionFile = path.join(temporaryRoot, "sessions", bound.structuredContent.sessionId, "session.json");
   const storedSession = JSON.parse(await fs.readFile(sessionFile, "utf8"));
   assert.equal(storedSession.title, "Integration council");
@@ -158,6 +174,23 @@ fi
   const storedResult = JSON.parse(await fs.readFile(sessionFile, "utf8"));
   assert.equal(storedResult.result.outcome, "Proceed");
   assert.equal(storedResult.phase, "result");
+
+  const failingDesktop = path.join(temporaryRoot, "failing-desktop.sh");
+  await fs.writeFile(failingDesktop, "#!/bin/sh\necho 'mock desktop failed' >&2\nexit 7\n");
+  await fs.chmod(failingDesktop, 0o700);
+  const failingTransport = new StdioClientTransport({
+    command: process.execPath,
+    args: [cliPath, "mcp"],
+    cwd: projectRoot,
+    env: { ...environment, CO_AGENT_APP_BIN: failingDesktop },
+    stderr: "pipe",
+  });
+  const failingClient = new Client({ name: "co-agent-launch-failure-test", version: "0.1.1" });
+  await failingClient.connect(failingTransport);
+  t.after(() => failingClient.close());
+  const failedOpen = await failingClient.callTool({ name: "co_agent_open", arguments: {} });
+  assert.equal(failedOpen.isError, true, "MCP must not report a crashed desktop process as opened");
+  assert.match(failedOpen.content[0].text, /exited before its window became ready/);
 
   const acpChild = spawn(process.execPath, [cliPath, "acp"], { cwd: projectRoot, env: environment, stdio: ["pipe", "pipe", "pipe"] });
   t.after(() => acpChild.kill("SIGTERM"));

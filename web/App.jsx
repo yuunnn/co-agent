@@ -5,7 +5,7 @@ import { Deliberation } from "./components/Deliberation";
 import { Inspector } from "./components/Inspector";
 import { SessionRail } from "./components/SessionRail";
 import { SettingsView } from "./components/SettingsView";
-import { api, del, token } from "./lib/api";
+import { api, del, launchId, token } from "./lib/api";
 
 export function App() {
   const requested = useMemo(() => new URLSearchParams(window.location.search).get("session"), []);
@@ -48,6 +48,11 @@ export function App() {
   }, []);
 
   useEffect(() => { loadBootstrap().catch((cause) => setError(cause.message)); }, [loadBootstrap]);
+  useEffect(() => {
+    if (!loaded || !config || !launchId) return;
+    api(`/api/desktop/launches/${encodeURIComponent(launchId)}/ready`, { method: "POST", body: "{}" })
+      .catch((cause) => setError(`Desktop readiness check failed: ${cause.message}`));
+  }, [config, loaded]);
   useEffect(() => {
     if (view !== "council" || !activeId) { setSession(null); return; }
     loadSession(activeId).catch((cause) => setError(cause.message));

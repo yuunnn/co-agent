@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search);
 export const token = params.get("token") || "";
+export const launchId = params.get("launch") || "";
 
 export async function api(path, options = {}) {
   const response = await fetch(path, {

@@ -33,6 +33,11 @@ fn runtime_url() -> Result<tauri::Url, String> {
                 query.append_pair("session", &session_id);
             }
         }
+        if let Some(index) = env::args().position(|arg| arg == "--launch-id") {
+            if let Some(launch_id) = env::args().nth(index + 1) {
+                query.append_pair("launch", &launch_id);
+            }
+        }
     }
     Ok(url)
 }

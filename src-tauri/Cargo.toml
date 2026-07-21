@@ -1,6 +1,6 @@
 [package]
 name = "co-agent-app"
-version = "0.1.0"
+version = "0.1.1"
 description = "Lightweight desktop console for Co-Agent"
 authors = ["Co-Agent contributors"]
 edition = "2024"

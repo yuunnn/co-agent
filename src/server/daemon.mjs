@@ -78,6 +78,7 @@ export async function startDaemon({ port = 0 } = {}) {
   await configStore.init();
 
   const sockets = new Set();
+  const desktopLaunches = new Map();
   const broadcast = (payload) => {
     const message = JSON.stringify(payload);
     for (const socket of sockets) {
@@ -102,6 +103,33 @@ export async function startDaemon({ port = 0 } = {}) {
       }
       if (request.method === "GET" && url.pathname === "/api/config") {
         return sendJson(response, 200, { config: await configStore.read() });
+      }
+      if (request.method === "POST" && url.pathname === "/api/desktop/launches") {
+        const body = await readJson(request);
+        if (!/^[a-f0-9-]{36}$/.test(body.launchId || "")) {
+          return sendJson(response, 400, { error: "Invalid desktop launch id" });
+        }
+        const launch = {
+          id: body.launchId,
+          sessionId: body.sessionId || null,
+          status: "pending",
+          requestedAt: new Date().toISOString(),
+        };
+        desktopLaunches.set(launch.id, launch);
+        setTimeout(() => desktopLaunches.delete(launch.id), 5 * 60_000).unref();
+        return sendJson(response, 201, { launch });
+      }
+      const desktopLaunchMatch = url.pathname.match(/^\/api\/desktop\/launches\/([a-f0-9-]{36})(?:\/(ready))?$/);
+      if (desktopLaunchMatch) {
+        const [, launchId, action] = desktopLaunchMatch;
+        const launch = desktopLaunches.get(launchId);
+        if (!launch) return sendJson(response, 404, { error: "Desktop launch was not registered" });
+        if (request.method === "POST" && action === "ready") {
+          const ready = { ...launch, status: "ready", readyAt: new Date().toISOString() };
+          desktopLaunches.set(launchId, ready);
+          return sendJson(response, 200, { launch: ready });
+        }
+        if (request.method === "GET" && !action) return sendJson(response, 200, { launch });
       }
       if (request.method === "POST" && url.pathname === "/api/config/theme") {
         const body = await readJson(request);

@@ -25,6 +25,7 @@ Use Co-Agent as a second screen for the current Codex task, not as a separate ta
 2. Retain the returned `sessionId` for every later tool call.
 3. Treat the bound Codex task itself as the only Codex seat and moderator.
 4. Use `co_agent_open` if an existing bound council needs to be shown again.
+5. A successful open means the authenticated desktop UI reported that its window is ready. If binding reports a launch error, show that error and repair the launch path before starting a council; never describe a scheduled process as an opened app.
 
 If automatic task identity is unavailable, the binding remains valid at the Co-Agent level. Say that explicit host task identity can be supplied later; do not invent an ID.
 
